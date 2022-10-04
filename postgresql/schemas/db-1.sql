@@ -1,8 +1,10 @@
-DROP SCHEMA IF EXISTS hello_schema CASCADE;
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE SCHEMA IF NOT EXISTS hello_schema;
+DROP SCHEMA IF EXISTS url_shortener CASCADE;
 
-CREATE TABLE IF NOT EXISTS hello_schema.users (
-    name TEXT PRIMARY KEY,
-    count INTEGER DEFAULT(1)
+CREATE SCHEMA IF NOT EXISTS url_shortener;
+
+CREATE TABLE IF NOT EXISTS url_shortener.urls (
+    id TEXT PRIMARY KEY DEFAULT uuid_generate_v4(),
+    url TEXT UNIQUE NOT NULL
 );
