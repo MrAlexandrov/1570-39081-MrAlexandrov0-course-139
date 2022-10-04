@@ -51,7 +51,7 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
 
     userver::formats::json::ValueBuilder response;
     response["short_url"] =
-        fmt::format("http://localhost:8080/v1/redirect-to-long?id={}",
+        fmt::format("http://localhost:8080/{}",
                     result.AsSingleRow<std::string>());
 
     return userver::formats::json::ToString(response.ExtractValue());

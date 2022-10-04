@@ -13,5 +13,8 @@ async def test_basic(service_client):
     response_json = response.json()
     assert 'short_url' in response_json
 
-    response = await service_client.get(response_json['short_url'])
+    request_uri = response_json['short_url']
+    request_uri = request_uri[request_uri.find('/v1'):]
+
+    response = await service_client.get(request_uri)
     assert response.status == 301
