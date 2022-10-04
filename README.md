@@ -124,3 +124,17 @@ make test-debug
 ```commandline
 make format
 ```
+
+### Попробнее про фреймворк userver
+
+- Документация
+https://userver.tech/index.html
+
+- Исходный код 
+https://github.com/userver-framework/userver
+
+- Шаблон сервиса 
+https://github.com/userver-framework/service_template
+
+- Шаблон сервиса с базой 
+https://github.com/userver-framework/pg_service_template
