@@ -1,47 +1,127 @@
-# pg_service_template
+# Сервис url-shortener 
 
-Template of a C++ service that uses [userver framework](https://github.com/userver-framework/userver) with PostgreSQL.
+Сервис предоставляет пользователям возможность делать короткие ссылки. Переходя по короткой ссылке, созданной в сервисе, браузер перенаправляется на оригинальный адрес.
 
+## Запуск приложения
+1. Запустите сервис командой `make docker-service-start-debug`
+2. Отправьте запрос на сокращение ссылки с помощью утилиты командной строки curl. 
+```
+curl -X POST localhost:8080/v1/make-shorter \
+  -d '{
+    "url": "https://ya.ru"
+  }'
+```
+В ответ придет примерно такой JSON: 
+```
+{
+	"short_url": "http://localhost:8080/some-id"
+}
+```
+Где `short_url` - адрес, переход по которому, осуществит перенаправление запроса на оригинальный адрес.
+3. Откройте короткий URL `http://localhost:8080/some-id` в браузере и запрос будет перенаправлен на оригинальный URL.
 
-## Download and Build
+## Задание
 
-To create your own userver-based service follow the following steps:
+На лекции мы проследили за процессом, как разрабатывать новые крутые продуктовые фичи в нашем сервисе Такси. Давайте реализуем что-то похожее на небольшом проекте `url-shortener`. Он всего лишь умеет укорачивать урлы и дает немного управления над созданными редиректами (можно посмотреть статистику использования и удалить ссылку).
 
-1. Press the green "Use this template button" at the top of this github page
-2. Clone the service `git clone your-service-repo && cd your-service-repo`
-3. Give a propper name to your service and replace all the occurences of "pg_service_template" string with that name
-   (could be done via `find . -not -path "./third_party/*" -not -path ".git/*" -not -path './build_*' -type f | xargs sed -i 's/pg_service_template/YOUR_SERVICE_NAME/g'`).
-4. Feel free to tweak, adjust or fully rewrite the source code of your service.
+Представьте, что нам необходимо вывести наш сервис `url-shortener` на новый качественный уровень на рынке подобных систем. Надо завоевать долю на рынке и нарастить количество активных пользователей с X до Y %. Это стратегическая цель. Но как ее достичь?
 
+Дальше задание разделяется на 2 пути: вы можете взять описанную ниже фичу либо придумать свою крутую. Главное — реализовать в коде и показать путь фичи от идеи до воплощения. Если пойдете по второму пути, то все равно нужно реализовать в коде предложенную фичу, чтобы наши автотесты проверили ваш код.
 
-## Makefile
+В требованиях к заданию есть творческая составляющая — нужно будет написать отчет в формате md. Если идете путем своей фичи - описываете в этой части свою фичу, если нет — то нашу. Подробности ниже.
 
-Makefile contains typicaly useful targets for development:
+### Давайте сначала присмотримся к фиче, предложенной нами
 
-* `make build-debug` - debug build of the service with all the assertions and sanitizers enabled
-* `make build-release` - release build of the service with LTO
-* `make test-debug` - does a `make build-debug` and runs all the tests on the result
-* `make test-release` - does a `make build-release` and runs all the tests on the result
-* `make service-start-debug` - builds the service in debug mode and starts it
-* `make service-start-release` - builds the service in release mode and starts it
-* `make` or `make all` - builds and runs all the tests in release and debug modes
-* `make format` - autoformat all the C++ and Python sources
-* `make clean-` - cleans the object files
-* `make dist-clean` - clean all, including the CMake cached configurations
-* `make install` - does a `make build-release` and runs install in directory set in environment `PREFIX`
-* `make install-debug` - does a `make build-debug` and runs install in directory set in environment `PREFIX`
-* `make docker-COMMAND` - run `make COMMAND` in docker environment
-* `make docker-build-debug` - debug build of the service with all the assertions and sanitizers enabled in docker environment
-* `make docker-test-debug` - does a `make build-debug` and runs all the tests on the result in docker environment
-* `make docker-start-service` - does a `make install` and runs service in docker environment
-* `make docker-start-service-debug` - does a `make install-debug` and runs service in docker environment
-* `make docker-clean-data` - stop docker containers and clean database data
+Кто-то проанализировал рынок за вас и решил, что киллер-фичей, которую так необходимо реализовать во что бы то ни стало, является "VIP ссылки"!
 
-Edit `Makefile.local` to change the default configuration and build options.
+Что это? Всё просто. Вы помните, что `UrlShortener` возвращает произвольную комбинацию символов в укороченном URL. А в VIP ссылках, это не так: пользователь сам указывает, какой будет его короткая ссылка, конечно, только если заданная им комбинация символов свободна.
 
+Формальное описание интерфейса на OpenAPI 3.0 тут [openapi.yaml](openapi.yaml)
 
-## License
+А ниже для общего представления неформальное описание.
 
-The original template is distributed under the [Apache-2.0 License](https://github.com/userver-framework/userver/blob/develop/LICENSE)
-and [CLA](https://github.com/userver-framework/userver/blob/develop/CONTRIBUTING.md). Services based on the template may change
-the license and CLA.
+make_shorter на входе получает:
+```
+url = "user-defined-long-url"
+optional vip_key = "user-defined-symbols"
+optional time_to_live = 1
+optional time_to_live_unit = SECONDS, MINUTES, HOURS, DAYS
+```
+
+Максимальный TimeToLive не должен превышать 2 дней (иначе красивые vip ссылки закончатся).
+
+В ответ на операцию приходит
+```
+short_url = "example.com/xyz" - короткая ссылка
+secret_key - ключ для управления ссылкой
+```
+
+Ну или ошибка 400, если есть какие-то проблемы с входными параметрами, например, если vip_key уже занят или переданы невалидные значения для TTL.
+
+### А что если у меня своя классная идея?
+Все просто - опиши ее и реализуй, а потом презентуй в коротком (до 2 минут) видео ролике - загрузи видео на любой открытый видеохостинг - ютуб, например. В ролике необходимо показать функциональность твоей фичи. Не забудь реализовать базовую фичу "vip ссылки", она будет проверена автоматически.
+
+### Требования к результату домашней работы
+
+0. Форкнуть (fork) данный репозиторий с заданием в свой репозиторий;
+1. Необходимо описать идею (vip ссылки или свою) в 1-2 предложениях;
+2. Сформулировать продуктовые гипотезы - 1-2 штуки в формате, как было на лекции;
+3. Оценить примерные трудозатраты (попробуй аргументировать оценку, например, требуемым количеством новых классов, объемом кода);
+4. Придумать, можно ли сделать MVP, если да, то как он будет выглядеть и сколько это займет времени;
+5. Проработать архитектуру и описать ее в тексте (в качестве формального описания подойдут openapi описание, диаграммы классов, компонентные диаграммы - в зависимости от того, что лучше отразит суть изменений и, что по вашему мнению будет понятнее проверяющему);
+6. Реализовать полное решение идеи в коде. Если пошли по пути разработки своей супер-идеи, то не забудьте реализовать vip ссылки;
+7. Добиться чтобы все предоставленные в исходном репозитории тесты на vip ссылки проходили успешно, внося правки в код сервиса, а не тестов :) ;
+8. Придумать AB-тест - какие выборки пользователей будут в эксперименте? Какие параметры фичи будем проверять в каждой выборке?
+9. Выбрать и описать набор наблюдаемых продуктовых метрик, по которым можно сделать вывод, что фича "взлетела". Какие значения метрик ожидаем увидеть?
+10. Сделать отчет в файле README.md (имеющийся удалить, свой добавить) в своем репозитории с ответами на эти вопросы.
+
+Если идешь путем разработки своей фичи, то отчет пиши про неё. Если реализуешь только vip ссылки, то отчет по ней.
+
+Если что-то непонятно, смело задавай вопросы своему ментору.
+
+## Работа с приложением
+
+### Требования
+
+Необходимо, чтобы были установлены следующие компоненты:
+
+- `Docker` и `docker-compose`
+- `Python`
+
+### Установка
+
+1. Склонируйте репозиторий `git clone your-service-repo && cd your-service-repo`
+2. Обновите сабмодули `git submodule update --init`
+3. Запустите сборку 
+- В docker контейнере `make docker-build-debug` (рекомендуется)
+- Локально `make build-debug` (не рекомендуется)
+
+### Запуск
+
+- Запуск приложения в docker контейнере (рекомендуется):
+```commandline
+make docker-service-start-debug
+```
+
+- Запуск приложения локально (не рекомендуется):
+```commandline
+make service-start-debug
+```
+
+Посмотреть документацию можно после запуска приложения по адресу `http://127.0.0.1:8080/swagger`.
+### Тестирование
+
+- Запуск тестов в docker контейнере (рекомендуется):
+```commandline
+make docker-test-debug
+```
+
+- Запуск тестов локально (не рекомендуется):
+```commandline
+make docker-test-debug
+```
+
+### Запуск форматирования кода
+```commandline
+make format
+```
