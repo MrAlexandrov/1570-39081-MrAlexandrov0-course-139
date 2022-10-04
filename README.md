@@ -118,7 +118,7 @@ make docker-test-debug
 
 - Запуск тестов локально (не рекомендуется):
 ```commandline
-make docker-test-debug
+make test-debug
 ```
 
 ### Запуск форматирования кода
