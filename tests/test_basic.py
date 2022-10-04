@@ -14,7 +14,7 @@ async def test_basic(service_client):
     assert 'short_url' in response_json
 
     request_uri = response_json['short_url']
-    request_uri = request_uri[request_uri.find('/v1'):]
+    request_uri = request_uri[request_uri.rfind('/'):]
 
     response = await service_client.get(request_uri)
-    assert response.status == 301
+    assert response.status == 200
