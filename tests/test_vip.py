@@ -3,7 +3,7 @@ import pytest
 # Start the tests via `make test-debug` or `make test-release`
 
 async def test_vip_scenario(service_client):
-    data = {"url": "https://example.com/vip", "vip_key": "example_vip"}
+    data = {"url": "https://example.com?id=vip", "vip_key": "example_vip"}
     response = await service_client.post('/v1/make-shorter', json=data)
     assert response.status_code == 200
 
@@ -18,7 +18,7 @@ async def test_vip_scenario(service_client):
 
 async def test_time_to_live_maximum(service_client):
     data = {
-        "url": "https://example.com/ttl_max",
+        "url": "https://example.com?id=ttl_max",
         "vip_key": "example_ttl_max",
         "time_to_live": 49,  # HOURS - default unit
     }
@@ -32,7 +32,7 @@ async def test_time_to_live_maximum(service_client):
 
 async def test_time_to_live_expiration(service_client, mocked_time):
     data = {
-        "url": "https://example.com/ttl_exp",
+        "url": "https://example.com?id=ttl_exp",
         "vip_key": "example_ttl_exp",
         "time_to_live": 10,
         "time_to_live_unit": "SECONDS",
