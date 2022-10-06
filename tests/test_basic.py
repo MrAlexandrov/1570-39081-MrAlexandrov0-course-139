@@ -15,3 +15,14 @@ async def test_basic(service_client):
 
     response = await service_client.get(request_url)
     assert response.status == 200
+
+
+async def test_bad_request(service_client):
+    data = {}
+    response = await service_client.post('/v1/make-shorter', json=data)
+    assert response.status == 400
+
+
+async def test_redirect_not_found(service_client):
+    response = await service_client.get('/unknown-id')
+    assert response.status == 404
