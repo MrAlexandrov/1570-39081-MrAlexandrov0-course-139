@@ -27,7 +27,7 @@ paths:
                                 url:
                                     description: url to make shorter
                                     type: string
-                                    default: https://yandex.ru
+                                    required: true
                                 vip_key:
                                     description: short key to be mapped to long url
                                     type: string
