@@ -6,11 +6,15 @@
 #include <userver/server/http/http_status.hpp>
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
+#include <userver/components/component_config.hpp>
+#include <userver/components/component_context.hpp>
 #include <userver/utils/assert.hpp>
 
 namespace url_shortener {
 
 namespace {
+
+const std::string kLocationHeader = "Location";
 
 class RedirectToLong final : public userver::server::handlers::HttpHandlerBase {
  public:
@@ -42,7 +46,7 @@ class RedirectToLong final : public userver::server::handlers::HttpHandlerBase {
       return {};
     }
 
-    response.SetHeader("Location", result.AsSingleRow<std::string>());
+    response.SetHeader(kLocationHeader, result.AsSingleRow<std::string>());
     response.SetStatus(userver::server::http::HttpStatus::kMovedPermanently);
 
     return {};

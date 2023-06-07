@@ -3,7 +3,7 @@ version: "2.3"
 services:
     postgres:
         container_name: service-postgres
-        image: postgres:12
+        image: postgres:15.2-alpine
         environment:
           - POSTGRES_DB=url_shortener_db-1
           - POSTGRES_USER=user
@@ -16,8 +16,8 @@ services:
         networks:
           - postgres
 
-    url_shortener-service:
-        image: ghcr.io/userver-framework/docker-userver-build-base:v1a
+    url_shortener-container:
+        image: ghcr.io/userver-framework/ubuntu-userver-build-base:v1
         privileged: true
         environment:
           - POSTGRES_DB=url_shortener_db-1
