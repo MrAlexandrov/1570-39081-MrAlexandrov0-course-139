@@ -2,12 +2,12 @@
 
 #include <fmt/format.h>
 
+#include <userver/components/component_config.hpp>
+#include <userver/components/component_context.hpp>
 #include <userver/server/handlers/http_handler_base.hpp>
 #include <userver/server/http/http_status.hpp>
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
-#include <userver/components/component_config.hpp>
-#include <userver/components/component_context.hpp>
 #include <userver/utils/assert.hpp>
 
 namespace url_shortener {

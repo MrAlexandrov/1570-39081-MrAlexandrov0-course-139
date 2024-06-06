@@ -1,6 +1,6 @@
 # yaml
 
-config_vars: @CONFIG_VAR_PATH@
+config_vars: /home/user/.local/etc/url_shortener/config_vars.yaml
 
 components_manager:
     coro_pool:

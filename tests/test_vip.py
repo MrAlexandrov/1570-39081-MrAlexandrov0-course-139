@@ -2,6 +2,7 @@ import pytest
 
 # Start the tests via `make test-debug` or `make test-release`
 
+
 async def test_vip_scenario(service_client):
     data = {"url": "https://example.com?id=vip", "vip_key": "example_vip"}
     response = await service_client.post('/v1/make-shorter', json=data)
@@ -11,7 +12,7 @@ async def test_vip_scenario(service_client):
     request_url = response_json['short_url']
     request_url = request_url[request_url.rfind('/'):]
     assert request_url == '/' + data['vip_key']
-    
+
     response = await service_client.post('/v1/make-shorter', json=data)
     assert response.status_code == 400
 
@@ -37,7 +38,6 @@ async def test_time_to_live_expiration(service_client, mocked_time):
         "time_to_live": 10,
         "time_to_live_unit": "SECONDS",
     }
-
 
     response = await service_client.post('/v1/make-shorter', json=data)
     assert response.status_code == 200
