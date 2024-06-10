@@ -1,17 +1,17 @@
-# Сервис url-shortener 
+# Сервис url-shortener
 
 Сервис предоставляет пользователям возможность делать короткие ссылки. Переходя по короткой ссылке, созданной в сервисе, браузер перенаправляется на оригинальный адрес.
 
 ## Запуск приложения
 1. Запустите сервис командой `make docker-start-service-debug`
-2. Отправьте запрос на сокращение ссылки с помощью утилиты командной строки curl. 
+2. Отправьте запрос на сокращение ссылки с помощью утилиты командной строки curl.
 ```
 curl -X POST localhost:8080/v1/make-shorter \
   -d '{
     "url": "https://ya.ru"
   }'
 ```
-В ответ придет примерно такой JSON: 
+В ответ придет примерно такой JSON:
 ```
 {
 	"short_url": "http://localhost:8080/some-id"
@@ -91,7 +91,7 @@ short_url = "example.com/xyz" - короткая ссылка
 
 1. Склонируйте репозиторий `git clone your-service-repo && cd your-service-repo`
 2. Обновите сабмодули `git submodule update --init`
-3. Запустите сборку 
+3. Запустите сборку
 - В docker контейнере `make docker-build-debug` (рекомендуется)
 - Локально `make build-debug` (не рекомендуется)
 
@@ -129,13 +129,13 @@ make format
 - Документация
 https://userver.tech/index.html
 
-- Исходный код 
+- Исходный код
 https://github.com/userver-framework/userver
 
-- Шаблон сервиса 
+- Шаблон сервиса
 https://github.com/userver-framework/service_template
 
-- Шаблон сервиса с базой 
+- Шаблон сервиса с базой
 https://github.com/userver-framework/pg_service_template
 
 ### Работа со временем

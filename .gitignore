@@ -5,8 +5,12 @@ compile_commands.json
 .ccache/
 .idea/
 .vscode/
-.pgdata/
+!.vscode/c_cpp_properties.json
+!.vscode/cmake-variants.yaml
+!.vscode/README.md
 .cores/
+.pgdata/
 cmake-build-*
 Testing/
-configs/static_config.yaml
+.DS_Store
+Makefile.local
