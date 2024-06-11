@@ -151,6 +151,9 @@ https://github.com/userver-framework/service_template
 - Шаблон сервиса с базой
 https://github.com/userver-framework/pg_service_template
 
+- Полный список возможных команд сервиса
+https://github.com/userver-framework/pg_service_template?tab=readme-ov-file#makefile
+
 ### Работа со временем
 
 При работе используйте `userver::utils::datetime::Now` из `<userver/utils/datetime.hpp>`. Если спользовать просто `chrono`, то не будет работать `mocked_time` в тестах
