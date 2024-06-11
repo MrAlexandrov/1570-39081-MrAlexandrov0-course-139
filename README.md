@@ -91,3 +91,66 @@ make_shorter на входе получает:
 * Записать короткий (до 2 минут) видео ролик с презентацией своей идеи.
 * Презентовать свою идею на встрече по разбору домашнего задания.
 
+## Работа с приложением
+
+### Требования
+
+Необходимо, чтобы были установлены следующие компоненты:
+
+- `Docker` и `docker-compose`
+- `Python`
+
+### Установка
+
+1. Склонируйте репозиторий `git clone your-service-repo && cd your-service-repo`
+2. Обновите сабмодули `git submodule update --init`
+3. Запустите сборку
+- В docker контейнере `make docker-build-debug` (рекомендуется)
+- Локально `make build-debug` (не рекомендуется)
+
+### Запуск
+
+- Запуск приложения в docker контейнере (рекомендуется):
+```commandline
+make docker-start-service-debug
+```
+
+- Запуск приложения локально (не рекомендуется):
+```commandline
+make service-start-debug
+```
+
+### Тестирование
+
+- Запуск тестов в docker контейнере (рекомендуется):
+```commandline
+make docker-test-debug
+```
+
+- Запуск тестов локально (не рекомендуется):
+```commandline
+make test-debug
+```
+
+### Запуск форматирования кода
+```commandline
+make format
+```
+
+### Попробнее про фреймворк userver
+
+- Документация
+https://userver.tech/index.html
+
+- Исходный код
+https://github.com/userver-framework/userver
+
+- Шаблон сервиса
+https://github.com/userver-framework/service_template
+
+- Шаблон сервиса с базой
+https://github.com/userver-framework/pg_service_template
+
+### Работа со временем
+
+При работе используйте `userver::utils::datetime::Now` из `<userver/utils/datetime.hpp>`. Если спользовать просто `chrono`, то не будет работать `mocked_time` в тестах
