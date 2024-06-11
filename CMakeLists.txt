@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(url_shortener CXX)
 
-include(GNUInstallDirs)
 
 # Adding userver dependency
 find_package(userver COMPONENTS core postgresql QUIET)
@@ -26,10 +25,10 @@ userver_setup_environment()
 
 # Common sources
 add_library(${PROJECT_NAME}_objs OBJECT
-    src/handlers/v1/make-shorter/view.hpp
-    src/handlers/v1/make-shorter/view.cpp
-    src/handlers/v1/redirect-to-long/view.hpp
-    src/handlers/v1/redirect-to-long/view.cpp
+src/handlers/v1/make-shorter/view.hpp
+src/handlers/v1/make-shorter/view.cpp
+src/handlers/v1/redirect-to-long/view.hpp
+src/handlers/v1/redirect-to-long/view.cpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql)
 
@@ -54,12 +53,14 @@ add_google_benchmark_tests(${PROJECT_NAME}_benchmark)
 
 
 # Functional Tests
-add_subdirectory(tests)
+# add_subdirectory(tests)
+
+userver_testsuite_add_simple()
 
 if(DEFINED ENV{PREFIX})
-  message(STATUS "Set install prefix: $ENV{PREFIX}")
-  file(TO_CMAKE_PATH "$ENV{PREFIX}" PREFIX_PATH)
-  set(CMAKE_INSTALL_PREFIX ${PREFIX_PATH})
+message(STATUS "Set install prefix: $ENV{PREFIX}")
+file(TO_CMAKE_PATH "$ENV{PREFIX}" PREFIX_PATH)
+set(CMAKE_INSTALL_PREFIX ${PREFIX_PATH})
 endif()
 
 set(CONFIG_VAR_PATH ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME}/config_vars.yaml)
@@ -68,5 +69,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/configs/static_config.yaml.in ${CMAKE
 FILE(GLOB CONFIGS_FILES ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.yaml ${CMAKE_CURRENT_SOURCE_DIR}/configs/*.json)
 
 # Install
+include(GNUInstallDirs)
+
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${PROJECT_NAME})
 install(FILES ${CONFIGS_FILES} DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/${PROJECT_NAME} COMPONENT ${PROJECT_NAME})

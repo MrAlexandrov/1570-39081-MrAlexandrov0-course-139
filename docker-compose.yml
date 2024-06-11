@@ -24,16 +24,25 @@ services:
           - POSTGRES_USER=user
           - POSTGRES_PASSWORD=password
           - PREFIX=${PREFIX:-~/.local}
+          - CC
           - CCACHE_DIR=/url_shortener/.ccache
+          - CCACHE_HASHDIR
+          - CCACHE_NOHASHDIR
+          - CCACHE_PREFIX
+          - CCACHE_SIZE
+          - CMAKE_OPTS
           - CORES_DIR=/cores
+          - CXX
+          - MAKE_OPTS
         volumes:
           - .:/url_shortener:rw
+          - ./third_party/userver/tools/docker:/tools:ro
           - ${TC_CORES_DIR:-./.cores}:/cores:rw
         ports:
           - 8080:8080
         working_dir: /url_shortener
         entrypoint:
-          - ./tests/run_as_user.sh
+          - /tools/run_as_user.sh
         depends_on:
           - postgres
         networks:
