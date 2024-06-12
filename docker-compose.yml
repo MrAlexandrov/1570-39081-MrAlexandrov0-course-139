@@ -9,7 +9,7 @@ services:
           - POSTGRES_USER=user
           - POSTGRES_PASSWORD=password
         ports:
-          - 5432
+          - "5432"
         volumes:
           - ./postgresql/schemas:/docker-entrypoint-initdb.d
           - ./.pgdata:/var/lib/postgresql/data
@@ -36,7 +36,7 @@ services:
           - MAKE_OPTS
         volumes:
           - .:/url_shortener:rw
-          - ./third_party/userver/tools/docker:/tools:ro
+          - ./tests:/tools:ro
           - ${TC_CORES_DIR:-./.cores}:/cores:rw
         ports:
           - 8080:8080
