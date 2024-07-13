@@ -36,8 +36,8 @@ class RedirectToLong final : public userver::server::handlers::HttpHandlerBase {
     auto result = pg_cluster_->Execute(
         userver::storages::postgres::ClusterHostType::kMaster,
         "SELECT url FROM url_shortener.urls "
-        "WHERE id = $1 ",
-        id);
+        "WHERE id = $1 AND ($2 < expiration_time OR expiration_time IS NULL)",
+        id, userver::utils::datetime::Now());
 
     auto& response = request.GetHttpResponse();
 

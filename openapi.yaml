@@ -14,7 +14,7 @@ components:
                     type: string
                     required: true
 paths:
-    /v1/make_shorter:
+    /v1/make-shorter:
         post:
             description: creates short url
             requestBody:

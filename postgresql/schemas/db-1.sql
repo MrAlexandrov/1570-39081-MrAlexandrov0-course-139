@@ -6,5 +6,7 @@ CREATE SCHEMA IF NOT EXISTS url_shortener;
 
 CREATE TABLE IF NOT EXISTS url_shortener.urls (
     id TEXT PRIMARY KEY DEFAULT uuid_generate_v4(),
-    url TEXT UNIQUE NOT NULL
+    url TEXT NOT NULL,
+    -- short_url TEXT UNIQUE,
+    expiration_time TIMESTAMP
 );
