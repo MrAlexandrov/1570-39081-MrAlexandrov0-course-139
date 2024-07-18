@@ -138,22 +138,18 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
       }
     }
 
-    try {
-      auto result = pg_cluster_->Execute(
-        userver::storages::postgres::ClusterHostType::kMaster,
-        "INSERT INTO url_shortener.urls (id, url, expiration_time) "
-        "VALUES($1, $2, $3) "
-        "ON CONFLICT (id) "
-        "DO UPDATE SET url = $2, expiration_time = $3 "
-        "RETURNING urls.id ",
-        vip_url, url, expiration_time
-      );
-      userver::formats::json::ValueBuilder response;
-      response["short_url"] = fmt::format("http://localhost:8080/{}", result.AsSingleRow<std::string>());
-      return response;
-    } catch (...) {
-      throw;
-    }
+    auto result = pg_cluster_->Execute(
+      userver::storages::postgres::ClusterHostType::kMaster,
+      "INSERT INTO url_shortener.urls (id, url, expiration_time) "
+      "VALUES($1, $2, $3) "
+      "ON CONFLICT (id) "
+      "DO UPDATE SET url = $2, expiration_time = $3 "
+      "RETURNING urls.id ",
+      vip_url, url, expiration_time
+    );
+    userver::formats::json::ValueBuilder response;
+    response["short_url"] = fmt::format("http://localhost:8080/{}", result.AsSingleRow<std::string>());
+    return response;
     return {};
   }
 
