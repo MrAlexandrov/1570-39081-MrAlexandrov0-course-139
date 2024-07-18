@@ -10,10 +10,6 @@
 #include <userver/storages/postgres/component.hpp>
 #include <userver/utils/assert.hpp>
 
-#include <iostream>
-#include <fstream>
-std::ofstream out{"output.txt"};
-
 namespace url_shortener {
 
 namespace {
@@ -40,7 +36,6 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
     std::string ttl_unit = request_body["time_to_live_unit"].As< std::string >("HOURS");
 
     if (!url.has_value()) {
-      out << "!url.has_value(), returning error" << std::endl;
       auto& response = request.GetHttpResponse();
       response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
       return userver::formats::json::ToString(userver::formats::json::MakeObject("detail", "url has no value"));
@@ -73,7 +68,6 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
 
  private:
   userver::formats::json::ValueBuilder HandleCommonUrl(const std::string_view& url) const {
-    out << "Executing SQL query" << std::endl;
     auto result = pg_cluster_->Execute(
       userver::storages::postgres::ClusterHostType::kMaster,
       "WITH ins AS ( "
@@ -99,19 +93,15 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
                                                     const std::string& ttl_unit,
                                                     const userver::server::http::HttpRequest& request
                                                     ) const {
-    out << "HandleVipUrl" << std::endl;
 
     auto duration = ConvertToSeconds(ttl, ttl_unit);
     if (!duration.has_value()) {
-      out << "!duration.has_value(), exiting" << std::endl;
       auto& response = request.GetHttpResponse();
       response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
       return userver::formats::json::MakeObject("detail", "Invalid input time parameters");
     }
 
     auto expiration_time = userver::utils::datetime::Now() + duration.value();
-    out << "expiration_time exists" << std::endl;
-    out << "duration has_value" << std::endl;
     {
       auto already_exist = pg_cluster_->Execute(
           userver::storages::postgres::ClusterHostType::kMaster,
@@ -133,7 +123,6 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
     }
 
     { // Проверка на то, что vip-ключ уже существует 
-      out << "Checking existing" << std::endl;
       auto exist = pg_cluster_->Execute(
           userver::storages::postgres::ClusterHostType::kMaster,
           "SELECT url "
@@ -141,10 +130,8 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
           "WHERE id = $1 AND ($2 < expiration_time OR expiration_time IS NULL)",
           vip_url, userver::utils::datetime::Now()
       );
-      out << "static_cast<int>(exist.Size()) = " << static_cast<int>(exist.Size()) << std::endl;
 
       if (static_cast<int>(exist.Size()) != 0) {
-        out << "static_cast<int>(exist.Size()) != 0, exiting" << std::endl;
         auto& response = request.GetHttpResponse();
         response.SetStatus(userver::server::http::HttpStatus::kBadRequest);
         return userver::formats::json::MakeObject("detail", "VIP key already exists");
@@ -152,8 +139,6 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
     }
 
     try {
-      out << "vip_url = " << vip_url << std::endl;
-      out << "url = " << url << std::endl;
       auto result = pg_cluster_->Execute(
         userver::storages::postgres::ClusterHostType::kMaster,
         "INSERT INTO url_shortener.urls (id, url, expiration_time) "
@@ -163,21 +148,17 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
         "RETURNING urls.id ",
         vip_url, url, expiration_time
       );
-      out << "Returning result = " << result.AsSingleRow<std::string>() << std::endl;
       userver::formats::json::ValueBuilder response;
       response["short_url"] = fmt::format("http://localhost:8080/{}", result.AsSingleRow<std::string>());
       return response;
     } catch (...) {
-      out << "Some shit happened" << std::endl;
       throw;
     }
-    out << "After try catch block" << std::endl;
     return {};
   }
 
   std::optional <std::chrono::seconds> ConvertToSeconds(const uint64_t& time_to_live, 
                                                         const std::string& time_to_live_unit) const {
-    out << "ConvertToSeconds" << std::endl;
     std::chrono::seconds result;
     static constexpr std::chrono::hours hours_in_day{24}; 
     static constexpr std::chrono::hours max_duration{48};
@@ -191,15 +172,11 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
     } else if (time_to_live_unit == "DAYS") {
       result = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(hours_in_day * time_to_live)); 
     } else {
-      out << "Cannot handle time_to_live_unit" << std::endl;
       return std::nullopt;
     }
-    out << "time_to_live_unit = " << time_to_live_unit << std::endl;
     if (std::chrono::duration_cast<std::chrono::seconds>(max_duration) < result) {
-      out << "Too much time" << std::endl;
       return std::nullopt;
     }
-    out << "Returning result" << std::endl;
     return result;
   }
 };
