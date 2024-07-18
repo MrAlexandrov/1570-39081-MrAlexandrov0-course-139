@@ -14,7 +14,11 @@ async def test_vip_scenario(service_client):
     assert request_url == '/' + data['vip_key']
 
     response = await service_client.post('/v1/make-shorter', json=data)
-    assert response.status_code == 400
+    # сделал так, что при добавлении точно такой же ссылки, TTL обновляется
+    assert response.status_code == 200
+    request_url = response_json['short_url']
+    request_url = request_url[request_url.rfind('/'):]
+    assert request_url == '/' + data['vip_key']
 
 
 async def test_time_to_live_maximum(service_client):
