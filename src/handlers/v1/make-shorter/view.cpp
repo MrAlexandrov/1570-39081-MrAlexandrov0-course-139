@@ -9,6 +9,7 @@
 #include <userver/storages/postgres/cluster.hpp>
 #include <userver/storages/postgres/component.hpp>
 #include <userver/utils/assert.hpp>
+#include "userver/formats/json/value_builder.hpp"
 
 namespace url_shortener {
 
@@ -41,16 +42,6 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
       return userver::formats::json::ToString(userver::formats::json::MakeObject("detail", "url has no value"));
     }
 
-    // if (vip_url.has_value()) {
-    //   response = HandleVipUrl(std::move(url.value()),
-    //                           std::move(vip_url.value()),
-    //                           std::move(ttl),
-    //                           std::move(ttl_unit),
-    //                           request);
-    // } else {
-    //   response = HandleCommonUrl(std::move(url.value()));
-    // }
-
     userver::formats::json::ValueBuilder response = ( vip_url.has_value() ? 
                                                       HandleVipUrl(url.value(),
                                                                    vip_url.value(),
@@ -81,8 +72,7 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
       url);
 
     userver::formats::json::ValueBuilder response;
-    response["short_url"] = fmt::format("http://localhost:8080/{}",
-                                        result.AsSingleRow<std::string>());
+    response["short_url"] = "http://localhost:8080/" + result.AsSingleRow<std::string>();
 
     return response;
   }
@@ -150,12 +140,11 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
     userver::formats::json::ValueBuilder response;
     response["short_url"] = fmt::format("http://localhost:8080/{}", result.AsSingleRow<std::string>());
     return response;
-    return {};
   }
 
   std::optional <std::chrono::seconds> ConvertToSeconds(const uint64_t& time_to_live, 
                                                         const std::string& time_to_live_unit) const {
-    std::chrono::seconds result;
+    std::optional <std::chrono::seconds> result;
     static constexpr std::chrono::hours hours_in_day{24}; 
     static constexpr std::chrono::hours max_duration{48};
 
@@ -167,11 +156,10 @@ class UrlShortener final : public userver::server::handlers::HttpHandlerBase {
       result = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(time_to_live));
     } else if (time_to_live_unit == "DAYS") {
       result = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::hours(hours_in_day * time_to_live)); 
-    } else {
-      return std::nullopt;
-    }
+    } 
+
     if (std::chrono::duration_cast<std::chrono::seconds>(max_duration) < result) {
-      return std::nullopt;
+      result = std::nullopt;
     }
     return result;
   }

@@ -12,7 +12,8 @@ components:
                 detail:
                     description: error message
                     type: string
-                    required: true
+            required: 
+                - detail
 paths:
     /v1/make-shorter:
         post:
@@ -27,17 +28,14 @@ paths:
                                 url:
                                     description: url to make shorter
                                     type: string
-                                    required: true
                                 vip_key:
                                     description: short key to be mapped to long url
                                     type: string
-                                    required: false
                                 time_to_live:
                                     description: |
                                         number of time-units this short url is going to be active. 
                                         Maximum value must not be more than 48 hours
                                     type: integer
-                                    required: false
                                     default: 10
                                 time_to_live_unit:
                                     description: time unit for time_to_live parameter
@@ -47,8 +45,9 @@ paths:
                                         - MINUTES
                                         - HOURS
                                         - DAYS
-                                    required: false
                                     default: HOURS
+                            required:
+                                - url
             responses:
                 '200':
                     description: OK
